@@ -1,0 +1,27 @@
+<Configuration status="info">
+    <Properties>
+        <Property name="patternConsole">%d{HH:mm:ss.SSS} %-5level %logger{4} - %msg%n</Property>
+        <Property name="patternLogFile">%d{HH:mm:ss.SSS} [%t] %-5level %logger{4} - %msg%n</Property>
+        <Property name="LOG_DIR">Log</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${patternConsole}"/>
+        </Console>
+        <RollingFile name="File" fileName="${LOG_DIR}/logs.log" append="true" filePattern="${LOG_DIR}/${date:yyyy-MM-dd}/%d{yyyy-MM-dd_HH-mm}_%i.log">
+            <Patternlayout pattern="${patternLogFile}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="25 KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    ф
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="LogFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
