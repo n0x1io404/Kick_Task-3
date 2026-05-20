@@ -14,7 +14,9 @@ public class Airport {
     private List<Gate> gates;
     private Terminal terminal;
     private Semaphore gateSemaphore;
+
     private final Lock lock = new ReentrantLock();
+    private boolean isInitialized = false;
 
     private Airport() {}
 
@@ -22,18 +24,30 @@ public class Airport {
         private static final Airport INSTANCE = new Airport();
     }
 
-    public static Airport getInstance() {
-        return Holder.INSTANCE;
+    public static Airport getInstance(int gatesCount, int terminalCapacity) {
+        Airport instance = Holder.INSTANCE;
+
+        instance.lock.lock();
+        try {
+            if (!instance.isInitialized) {
+                instance.gates = new ArrayList<>();
+                for (int i = 1; i <= gatesCount; i++) {
+                    instance.gates.add(new Gate(i));
+                }
+                instance.terminal = new Terminal(terminalCapacity);
+                instance.gateSemaphore = new Semaphore(gatesCount, true);
+                instance.isInitialized = true;
+                logger.info("Airport initialized: {} gates, terminal capacity {}", gatesCount, terminalCapacity);
+            }
+        } finally {
+            instance.lock.unlock();
+        }
+
+        return instance;
     }
 
-    public void init(int gatesCount, int terminalCapacity) {
-        this.gates = new ArrayList<>();
-        for (int i = 1; i <= gatesCount; i++) {
-            this.gates.add(new Gate(i));
-        }
-        this.terminal = new Terminal(terminalCapacity);
-        this.gateSemaphore = new Semaphore(gatesCount, true);
-        logger.info("Airport initialized: {} gates, terminal capacity {}", gatesCount, terminalCapacity);
+    public static Airport getInstance() {
+        return Holder.INSTANCE;
     }
 
     public Gate acquireGate() {
